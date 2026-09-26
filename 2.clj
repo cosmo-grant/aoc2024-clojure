@@ -15,8 +15,23 @@
                       (and (differ-by-at-least-1? report) (differ-by-at-most-3? report))
                       (or (decreasing? report) (increasing? report))))
 
-(defn solve [input] (let [reports (map #(map parse-long (str/split % #"\s+")) (str/split-lines input))]
+(defn solve-part-1 [input] (let [reports (map #(map parse-long (str/split % #"\s+")) (str/split-lines input))]
 
-                      (count (filter safe? reports))))
+                             (count (filter safe? reports))))
 
-(solve input)
+(solve-part-1 input)
+
+(defn remove-at [coll i] (concat (take i coll) (drop (inc i) coll)))
+
+(defn but1 [coll] (map remove-at (repeat coll) (range (count coll))))
+
+(defn safe-but1? [report] (boolean (some safe? (but1 report))))
+
+(defn solve-part-2 [input] (let [reports (map #(map parse-long (str/split % #"\s+")) (str/split-lines input))]
+
+                             (count (filter safe-but1? reports))))
+
+(safe-but1? [7 6 4 2 1])
+(safe-but1? [1 2 7 8 9])
+
+(solve-part-2 input)
