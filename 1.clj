@@ -3,7 +3,7 @@
 
 (def input (slurp (clojure.java.io/resource "1.txt")))
 
-(defn solve [input]
+(defn solve-part-1 [input]
   (let [rows (map #(str/split % #"\s+") (str/split-lines input))
         col1 (sort (map #(Integer/parseInt (get % 0)) rows))
         col2 (sort (map #(Integer/parseInt (get % 1)) rows))
@@ -11,4 +11,14 @@
         total (reduce + distances)]
     total))
 
-(solve input)
+(solve-part-1 input)
+
+(defn solve-part-2 [input]
+  (let [rows (map #(str/split % #"\s+") (str/split-lines input))
+        col1 (sort (map #(Integer/parseInt (get % 0)) rows))
+        col2 (sort (map #(Integer/parseInt (get % 1)) rows))
+        col2-freq (frequencies col2)
+        scores (map #(* % (get col2-freq % 0)) col1)]
+    (reduce + scores)))
+
+(solve-part-2 input)
