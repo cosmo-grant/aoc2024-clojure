@@ -1,7 +1,8 @@
 (ns day4
-  (:require [clojure.string :as str]))
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]))
 
-(def input (slurp (clojure.java.io/resource "4.txt")))
+(def input (slurp (io/resource "4.txt")))
 (def example "MMMSXXMASM
 MSAMXMSMSA
 AMXSXMAAMM
@@ -12,8 +13,6 @@ SMSMSASXSS
 SAXAMASAAA
 MAMMMXMMMM
 MXMXAXMASX")
-
-(def wordsearch (str/split-lines input))
 
 (defn coordinates [wordsearch] (let [row-max (count wordsearch)
                                      col-max (count (get wordsearch 0))]

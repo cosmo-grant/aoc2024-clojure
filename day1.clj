@@ -1,7 +1,8 @@
 (ns day1
-  (:require [clojure.string :as str]))
+  (:require [clojure.java.io :as io]
+            [clojure.string :as str]))
 
-(def input (slurp (clojure.java.io/resource "1.txt")))
+(def input (slurp (io/resource "1.txt")))
 
 (defn solve-part-1 [input]
   (let [rows (map #(str/split % #"\s+") (str/split-lines input))
