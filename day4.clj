@@ -31,10 +31,14 @@ MXMXAXMASX")
 (def x-mas-deltas [[[-1 -1] [0 0] [1 1]]
                    [[1 -1] [0 0] [-1 1]]])
 
-(defn add-componentwise [[row1, col1] [row2 col2]] [(+ row1 row2) (+ col1 col2)])
+;; (defn v+ [coll1 coll2] (mapv + coll1 coll2))
+
+(defn v+ [& vs] (apply mapv + vs))
 
 (defn path [base deltas]
-  (map (partial add-componentwise base) deltas))
+  (mapv v+ (repeat base) deltas)
+  )
+  ;; (map (partial add-componentwise base) deltas))
 
 #_(path  [1 2] [[0 0] [1 0]])
 
@@ -43,22 +47,23 @@ MXMXAXMASX")
 
 #_(paths [10 20] xmas-deltas)
 
-(defn get-char [wordsearch [row, col]] (get (get wordsearch row "") col ""))
+(defn get-char [wordsearch [row, col]] (get-in wordsearch [row col] ""))
 
 (defn word [wordsearch path] (str/join (map #(get-char wordsearch %) path)))
 
-(defn count-xmases [words] (count (filter #(= "XMAS" %) words)))
+(defn count-xmases [words] (count (filter #{"XMAS"} words)))
 
-(defn mas? [word] (or (= "MAS" word) (= "SAM" word)))
+(def mas? #{"SAM" "MAS"})
 
-(defn x-mas? [[first second]] (and (mas? first) (mas? second)))
+(defn x-mas? [words] (every? mas? words))
 
-(defn solve-part1 [input] (let [wordsearch (str/split-lines input)]
-                            (->> (get-coords wordsearch \X)
-                                 (map #(paths % xmas-deltas))
-                                 (map #(map (partial word wordsearch) %))
-                                 (map count-xmases)
-                                 (reduce +))))
+(defn solve-part1 [input]
+  (let [wordsearch (str/split-lines input)]
+    (->> (get-coords wordsearch \X)
+         (map #(paths % xmas-deltas))
+         (map #(map (partial word wordsearch) %))
+         (map count-xmases)
+         (reduce +))))
 
 (defn solve-part2 [input] (let [wordsearch (str/split-lines input)]
                             (->> (get-coords wordsearch \A)

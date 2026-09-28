@@ -6,20 +6,27 @@
 
 (defn solve-part-1 [input]
   (let [rows (map #(str/split % #"\s+") (str/split-lines input))
-        col1 (sort (map #(Integer/parseInt (get % 0)) rows))
-        col2 (sort (map #(Integer/parseInt (get % 1)) rows))
+        col1 (->> rows
+                  (map first)
+                  (map parse-long)
+                  sort)
+        col2 (->> rows
+                  (map second)
+                  (map parse-long)
+                  sort)
         distances (map abs (mapv - col1 col2))
-        total (reduce + distances)]
+        total (apply + distances)]
     total))
 
 (solve-part-1 input)
 
 (defn solve-part-2 [input]
   (let [rows (map #(str/split % #"\s+") (str/split-lines input))
-        col1 (sort (map #(Integer/parseInt (get % 0)) rows))
-        col2 (sort (map #(Integer/parseInt (get % 1)) rows))
+        col1 (sort (map #(parse-long (get % 0)) rows))
+        col2 (sort (map #(parse-long (get % 1)) rows))
         col2-freq (frequencies col2)
         scores (map #(* % (get col2-freq % 0)) col1)]
     (reduce + scores)))
 
 (solve-part-2 input)
+
