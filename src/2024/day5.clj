@@ -31,32 +31,6 @@
 61,13,29
 97,13,75,29,47")
 
-(def parsed-rules '('(47 53)
-  '(97 13)
-  '(97 61)
-  '(97 47)
-  '(75 29)
-  '(61 13)
-  '(75 53)
-  '(29 13)
-  '(97 29)
-  '(53 29)
-  '(61 53)
-  '(97 53)
-  '(61 29)
-  '(47 13)
-  '(75 47)
-  '(97 75)
-  '(47 61)
-  '(75 61)
-  '(47 29)
-  '(75 13)
-  '(53 13)))
-
-(def example-update '(75 47 61 53 29))
-
-(satisfies-rule? example-update '(47 13))
-
 (def input (slurp (io/resource "5.txt")))
 
 (defn middle [coll] (nth coll (/ (- (count coll) 1) 2)))
@@ -75,20 +49,25 @@
 
 #_(parse example)
 
-(defn satisfies-rule? [update [left right]] (let [left-index (.indexOf update left)
-                                                  right-index (.indexOf update right)]
-                                              (or (= left-index -1) (= right-index -1) (< left-index right-index))))
+(defn violation-at [update [left right]] (let [left-index (.indexOf update left)
+                                               right-index (.indexOf update right)]
+                                           (if (or (= left-index -1) (= right-index -1) (< left-index right-index))
+                                             nil
+                                             [left-index right-index])))
 
-#_(satisfies-rule? [75 47 61 53 29] [75 53])
-#_(satisfies-rule? [75 47 61 53 29] [53 75])
-#_(satisfies-rule? [75 47 61 53 29] [55553 75])
+;; returns a collection of [left right] pairs, indexes where update volates rules, maybe empty
+(defn violations-at [update rules] (filter #(not (= nil %)) (map (partial violation-at update) rules)))
 
-(defn satisfies-rules? [update rules] (every? (partial satisfies-rule? update) rules))
+(violation-at [75 47 61 53 29] [75 53])
+(violation-at [75 47 61 53 29] [53 75])
+(violation-at [75 47 61 53 29] [55553 75])
+(violations-at [75 47 61 53 29] [[75 53] [53 75] [1321 75]])
+
+(defn satisfies-rules? [update rules] (empty? (violations-at update rules)))
 
 #_(satisfies-rules? [75 47 61 53 29] [[75 53] [47 61]])
 #_(satisfies-rules? [75 47 61 53 29] [[53 75] [47 61]])
 #_(satisfies-rules? [75 47 61 53 29] [[55553 75] [47 61] [75 29]])
-
 
 (defn solve-part1 [input]
   (let [{rules :rules  updates :updates} (parse input)
@@ -99,3 +78,22 @@
 
 (solve-part1 example)
 (solve-part1 input)
+
+(defn solve-part2 [input]
+  (let [{rules :rules  updates :updates} (parse input)
+        update-to-violations (zipmap updates (map #(violations-at % rules) updates))]
+
+    ()))
+
+(defn swap [[i j] coll] (
+                         let [smaller (min i j)
+                              larger (max i j)]
+                         (concat (subvec coll 0 smaller) [(nth coll larger)] (subvec coll (inc smaller) larger) [(nth coll smaller)] (subvec coll (inc larger)))))
+
+(defn swap-many [coll & swaps] (let [swappers (map #(partial swap %) (vec swaps))]
+                                 (reduce (fn [acc swapper] (swapper acc)) coll swappers)))
+
+(swap [1 4] '(5 8 13 20 30))
+(swap [4 1] [5 8 13 20 30])
+(swap-many [0 1 2 3 4 5] [0 1] [2 3])
+
