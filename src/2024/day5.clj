@@ -79,21 +79,23 @@
 (solve-part1 example)
 (solve-part1 input)
 
+(defn comp [rules x y] (if (contains? rules [x y]) -1 (if (contains? rules [y x]) 1 0)))
+#_(comp 0 1 #{[0 1]})
+#_(comp 0 1 #{[2 3] [1 0]})
+#_(comp 0 1 #{[2 3] [2 4]})
+
+(defn fix-order [rules update] (sort-by identity (partial comp rules) update))
+#_(fix-order #{[1 3] [1 2] [2 3]} [3 2 1])
+
 (defn solve-part2 [input]
   (let [{rules :rules  updates :updates} (parse input)
-        update-to-violations (zipmap updates (map #(violations-at % rules) updates))]
+        bad-updates (filter #(not (satisfies-rules? % rules)) updates)
+        rules (set rules)]
+    (->> bad-updates
+         (map (partial fix-order rules))
+         (map middle)
+         (apply +))))
 
-    ()))
-
-(defn swap [[i j] coll] (
-                         let [smaller (min i j)
-                              larger (max i j)]
-                         (concat (subvec coll 0 smaller) [(nth coll larger)] (subvec coll (inc smaller) larger) [(nth coll smaller)] (subvec coll (inc larger)))))
-
-(defn swap-many [coll & swaps] (let [swappers (map #(partial swap %) (vec swaps))]
-                                 (reduce (fn [acc swapper] (swapper acc)) coll swappers)))
-
-(swap [1 4] '(5 8 13 20 30))
-(swap [4 1] [5 8 13 20 30])
-(swap-many [0 1 2 3 4 5] [0 1] [2 3])
+(solve-part2 example)
+(solve-part2 input)
 
